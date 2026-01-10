@@ -1,0 +1,80 @@
+[project]
+name = "vision-restore-ai"
+version = "2.0.0"
+description = "Free, privacy-focused image upscaling with Real-ESRGAN, SwinIR, GFPGAN, and CodeFormer"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Vision-Restore AI Team"}
+]
+keywords = ["image-upscaling", "super-resolution", "real-esrgan", "gfpgan", "face-restoration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+]
+
+dependencies = [
+    "customtkinter>=5.2.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.24.0",
+    "opencv-python>=4.8.0",
+    "tqdm>=4.65.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "basicsr>=1.4.2",
+    "facexlib>=0.3.0",
+    "gfpgan>=1.3.8",
+    "realesrgan>=0.3.0",
+]
+ncnn = [
+    "realesrgan-ncnn-vulkan-python>=1.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+vision-restore = "vision_restore.main:main"
+vision-restore-gui = "vision_restore.gui.app:main"
+
+[project.urls]
+Homepage = "https://github.com/Rav-xyl/Vision_Restore_AI"
+Documentation = "https://github.com/Rav-xyl/Vision_Restore_AI#readme"
+Repository = "https://github.com/Rav-xyl/Vision_Restore_AI"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vision_restore*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
