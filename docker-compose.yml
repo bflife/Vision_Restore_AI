@@ -1,0 +1,114 @@
+# Docker Compose Configuration for Vision-Restore AI
+# Supports both CPU and GPU configurations
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # CPU-only Service
+  # ============================================================================
+  vision-restore-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: application
+    image: vision-restore-ai:cpu
+    container_name: vision-restore-cpu
+    ports:
+      - "8000:8000"
+    environment:
+      - VISION_RESTORE_DEVICE=cpu
+      - VISION_RESTORE_LOG_LEVEL=INFO
+    volumes:
+      - ./models:/app/models
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+      - ./cache:/app/cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - vision-restore-net
+    profiles:
+      - cpu
+
+  # ============================================================================
+  # GPU-enabled Service (NVIDIA CUDA)
+  # ============================================================================
+  vision-restore-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gpu
+    image: vision-restore-ai:gpu
+    container_name: vision-restore-gpu
+    ports:
+      - "8000:8000"
+    environment:
+      - VISION_RESTORE_DEVICE=cuda
+      - VISION_RESTORE_LOG_LEVEL=INFO
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./models:/app/models
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+      - ./cache:/app/cache
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - vision-restore-net
+    profiles:
+      - gpu
+
+  # ============================================================================
+  # Optional: Nginx Reverse Proxy
+  # ============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: vision-restore-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - vision-restore-cpu
+    restart: unless-stopped
+    networks:
+      - vision-restore-net
+    profiles:
+      - proxy
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  vision-restore-net:
+    driver: bridge
+
+# ============================================================================
+# Volumes (optional persistent storage)
+# ============================================================================
+volumes:
+  models:
+    driver: local
+  cache:
+    driver: local
