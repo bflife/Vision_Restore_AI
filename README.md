@@ -123,6 +123,53 @@ py -3.10 -m vision_restore.main -i photos/ -o output/ --model swinir --face-mode
 
 ---
 
+## 🐳 Docker & REST API (New!)
+
+Vision-Restore AI now supports Docker deployment with a full-featured REST API!
+
+### Quick Start with Docker
+
+```bash
+# Start service (CPU mode)
+docker-compose --profile cpu up -d
+
+# Test the API
+curl -X POST "http://localhost:8000/api/v1/enhance" \
+  -F "file=@input.jpg" \
+  -F "scale=4" \
+  -o output.png
+
+# Access API documentation
+# Browser: http://localhost:8000/docs
+```
+
+### Python Client Example
+
+```python
+from examples.client_example import VisionRestoreClient
+
+client = VisionRestoreClient("http://localhost:8000")
+client.enhance_image("input.jpg", "output.png", scale=4)
+```
+
+### 📚 Documentation
+
+- **[Quick Start Guide](QUICK_START.md)** - Get started in 5 minutes
+- **[Docker Deployment Guide](DOCKER_DEPLOYMENT.md)** - Complete deployment documentation (655 lines)
+- **[API Features](API_FEATURES.md)** - API functionality overview
+- **[Project Summary](PROJECT_SUMMARY.md)** - Full implementation details
+
+### Features
+
+✅ **RESTful API** - Standard HTTP endpoints for remote processing  
+✅ **Docker Support** - CPU and GPU (NVIDIA CUDA) modes  
+✅ **Scalable** - Horizontal scaling with load balancing  
+✅ **Batch Processing** - Process multiple images in one request  
+✅ **Auto Documentation** - Interactive Swagger UI  
+✅ **Production Ready** - Health checks and monitoring  
+
+---
+
 ## 🤝 Contributing
 Contributions are welcome! Please read `CONTRIBUTING.md` for details on our code of conduct and the process for submitting pull requests.
 
